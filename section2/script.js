@@ -6,6 +6,15 @@ let gameSpeed = 15;
 //let gameFrame = 0;
 
 window.addEventListener('load', function() {
+    const slider = document.getElementById('slider');
+    slider.value = gameSpeed;
+    const displayGameSpeed = document.getElementById('gameSpeed');
+    displayGameSpeed.innerHTML = gameSpeed;
+    slider.addEventListener('change', function(e) {
+        gameSpeed = e.target.value;
+        displayGameSpeed.innerHTML = gameSpeed;
+    });
+
     class Layer {
         constructor(imageSrc, speedModifier) {
             this.x = 0;
