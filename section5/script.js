@@ -11,18 +11,32 @@ let lastTime = 0;
 let ravens = [];
 class Raven {
     constructor() {
-        this.width = 100;
-        this.height = 50;
+        this.spriteWidth = 271;
+        this.spriteHeight = 194;
+        this.sizeModifier = Math.random() * 0.6 + 0.4;
+        this.width = this.spriteWidth * this.sizeModifier;
+        this.height = this.spriteHeight * this.sizeModifier;
         this.x = canvas.width;
         this.y = Math.random() * (canvas.height - this.height);
         this.directionX = Math.random() * 5 + 3;
         this.directionY = Math.random() * 5 - 2.5;
+        this.markedForDeletion = false;
+        this.image = new Image();
+        this.image.src = 'raven.png';
+        this.frame = 0;
+        this.maxFrame = 4;
     }
     update() {
         this.x -= this.directionX;
+        if (this.x + this.width < 0) {
+            this.markedForDeletion = true;
+        }
+        this.frame = this.frame > this.maxFrame ? 0 : this.frame + 1;
     }
     draw() {
-        ctx.fillRect(this.x ,this.y, this.width, this.height);
+        ctx.strokeRect(this.x ,this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
+            this.x, this.y, this.width, this.height);
     }
 }
 
@@ -36,6 +50,7 @@ function animate(timestamp) {
         timeToNextRaven = 0;
     }
     [...ravens].forEach(object => object.update());
+    ravens = ravens.filter(raven => !raven.markedForDeletion);
     [...ravens].forEach(object => object.draw());
     requestAnimationFrame(animate);
 }
