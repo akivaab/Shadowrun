@@ -26,13 +26,19 @@ window.addEventListener('load', function() {
            this.enemies = [];
            this.enemyTimer = 0;
            this.enemyInterval = 1000;
-           this.debug = true;
+           this.collisions = [];
+           this.debug = false;
            this.score = 0;
            this.fontColor = 'black';
+           this.time = 0;
+           this.maxTime = 10000;
+           this.gameOver = false;
            this.player.currentState = this.player.states[0];
            this.player.currentState.enter();
         }
         update(deltaTime) {
+            this.time += deltaTime;
+            if (this.time > this.maxTime) this.gameOver = true;
             this.background.update();
             this.player.update(this.input.keys, deltaTime);
             //handle enemies
@@ -53,8 +59,13 @@ window.addEventListener('load', function() {
                 if (particle.markedForDeletion) this.particles.splice(index, 1);
             });
             if (this.particles.length > this.maxParticles) {
-                this.particles = this.particles.slice(0, this.maxParticles);
+                this.particles.length = this.maxParticles;
             }
+            //handle collision sprites
+            this.collisions.forEach((collision, index) => {
+                collision.update(deltaTime);
+                if (collision.markedForDeletion) this.collisions.splice(index, 1);
+            });
         }
         draw(context) {
             this.background.draw(context);
@@ -64,6 +75,9 @@ window.addEventListener('load', function() {
             });
             this.particles.forEach(particle => {
                 particle.draw(context);
+            });
+            this.collisions.forEach(collision => {
+                collision.draw(context);
             });
             this.ui.draw(context);
         }
@@ -83,7 +97,7 @@ window.addEventListener('load', function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         game.update(deltaTime);
         game.draw(ctx);
-        requestAnimationFrame(animate);
+        if (!game.gameOver) requestAnimationFrame(animate);
     }
     animate(0);
 });
